@@ -9,21 +9,30 @@
 #include <string.h>
 extern char *NAME;/*program name*/
 extern char **environ;/*environment variables list*/
+typedef struct command{
+    int num_args;
+    char *cmd;
+    char **args;
+}cmd_t;
 typedef struct aliases{
     char *alias_name;
     char *real_name;
 } alias_t;
 typedef struct builtins{
     char *name;
-    int (*f)(void);
+    int (*f)(cmd_t *);
 }builtins_t;
+/*input*/
+char *read_line(void);
 int _putchar(char *);
+void free_command(cmd_t *);
+cmd_t *parse_line(char *src);
+void *realloc_memory(void *mem, ssize_t size);
 /*helper functions*/
 void strip_line(char *str, ssize_t);
-char **parse_cmd(char *src);
 /*execution interface*/
-int execute(char **);
-int isexec(char **);
+int execute(cmd_t *);
+int isexec(cmd_t *);
 /*strings*/
 int _strcmp(char *, char *);
 int _strncmp(char *, char *, int);
@@ -39,5 +48,6 @@ void usage_error(char *format, ...);
 /*Environment handlers*/
 char *_getenv(char *);
 /*built-ins*/
-void __exit();
+int __exit(cmd_t*);
+int _env(cmd_t *);
 #endif /*_SHELL_H_*/
