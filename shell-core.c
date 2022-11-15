@@ -18,8 +18,6 @@ int execute(cmd_t *cmd)
         {"exit", __exit},
         {"env", _env},
         {"setenv", _setenv},
-        {"setenv", _getenv},
-        {"cd", _cd},
         {NULL, NULL}
     };
     

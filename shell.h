@@ -55,6 +55,4 @@ int __exit(cmd_t*);
 int _env(cmd_t *);
 int _setenv(cmd_t *cmd);
 int _unsetenv(cmd_t *cmd);
-int _cd(cmd_t *);
-int 
 #endif /*_SHELL_H_*/
