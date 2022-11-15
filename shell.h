@@ -22,9 +22,12 @@ typedef struct builtins{
     char *name;
     int (*f)(cmd_t *);
 }builtins_t;
+/**/
+char *_strtok(char *, const char *);
 /*input*/
 char *read_line(void);
 int _putchar(char *);
+ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
 void free_command(cmd_t *);
 cmd_t *parse_line(char *src);
 void *realloc_memory(void *mem, ssize_t size);
@@ -50,4 +53,8 @@ char *_getenv(char *);
 /*built-ins*/
 int __exit(cmd_t*);
 int _env(cmd_t *);
+int _setenv(cmd_t *cmd);
+int _unsetenv(cmd_t *cmd);
+int _cd(cmd_t *);
+int 
 #endif /*_SHELL_H_*/

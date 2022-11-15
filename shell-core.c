@@ -17,6 +17,9 @@ int execute(cmd_t *cmd)
     {
         {"exit", __exit},
         {"env", _env},
+        {"setenv", _setenv},
+        {"setenv", _getenv},
+        {"cd", _cd},
         {NULL, NULL}
     };
     
@@ -32,7 +35,12 @@ int execute(cmd_t *cmd)
     for (count = 0; sh_builtins[count].name != NULL; count++)
     {
         if (_strcmp(cmd->cmd, sh_builtins[count].name) == 0)/*builtin*/
-            return (sh_builtins[count].f(cmd));
+        {   
+            if (sh_builtins[count].f(cmd))
+                return (0);
+            else
+                return (1);
+        }
     }
     printf("%s\n", cmd->cmd);
     /*3. env */
@@ -103,6 +111,4 @@ void _execute(cmd_t *cmd)
             sleep(2);
             break;
     }
-
 }
-

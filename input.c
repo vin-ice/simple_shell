@@ -2,6 +2,58 @@
 #define BUFF_SIZE 64
 #define TOKEN_DELIM " \r\t\n"
 /**
+ * _getline - reads input from stream, writes it to mem and returns count of input
+ * @lineptr: pointer to pointer of address to write to
+ * @n: size of allocated mem
+ * @stream: source
+ * 
+ * Return: count of input
+ */
+ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
+{
+    int buff;
+    char *ptr, *eptr;
+    
+    if (*lineptr == NULL || *n == 0)
+    {
+        *n = BUFF_SIZE;
+        *lineptr = malloc(sizeof (char) * (*n));
+        if (*lineptr == NULL)
+        {
+            perror("malloc");
+            return (-1);
+        }
+    }  
+    for (ptr = *lineptr, eptr = *lineptr + *n;;)
+    {
+        buff  = fgetc(stream);
+        if (buff == -1)
+        {
+            if (feof(stream))
+                return (ptr == *lineptr ? -1 : ptr - *lineptr);
+            else
+                return (-1);
+        }
+        *ptr++ = buff;
+        if (buff == '\n')
+        {
+            *ptr = '\0';
+            return (ptr - *lineptr);
+        }
+        if (ptr + 2 >= eptr)
+        {
+            *n *= 2;
+            *lineptr = realloc(*lineptr, sizeof (char) * (*n));
+            if (*lineptr == NULL)
+            {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+    return (ptr - *lineptr);
+}
+/**
  * read_line - provides for user input
  * Return: returns inputted string
  */
@@ -10,7 +62,7 @@ char *read_line(void)
     char *input = NULL;
     size_t size = 0;
 
-    getline(&input, &size, stdin);
+    _getline(&input, &size, stdin);
 
     return (input);
 }
@@ -33,7 +85,7 @@ cmd_t *parse_line(char *src)
     tokens = malloc(sizeof (char *) * len);
     if (tokens == NULL)
         err_exit("Memory not allocated");
-    token = strtok(src, TOKEN_DELIM);
+    token = _strtok(src, TOKEN_DELIM);
     command->cmd = token;
     while (token != NULL)
     {
@@ -44,7 +96,7 @@ cmd_t *parse_line(char *src)
         }
         tokens[count] = token;
         count++;
-        token = strtok(NULL, TOKEN_DELIM);
+        token = _strtok(NULL, TOKEN_DELIM);
     }
     if (count >= len)
     {
