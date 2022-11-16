@@ -24,7 +24,6 @@ char *_strcat(char *str1, char *str2)
 	int len;
 	char *str;
 
-    printf("====main_env.c->_strcat=====\n");
 	len = strlen(str1) + strlen(str2);
 	str = malloc(sizeof (char) * len + 1);
 	if (str == NULL)
@@ -47,7 +46,6 @@ char *_strncat(char *dest, char *src, int n)
 {
 	int length, j;
 	
-    printf("\n===strings.c->_strncat===\n");
 	length = 0;
 	while (dest[length] != '\0')
 	{

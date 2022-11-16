@@ -1,4 +1,5 @@
 *test*
 gh_login
-lib
-hsh 
+lib/
+hsh
+main_tests/

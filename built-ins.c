@@ -4,7 +4,6 @@ int __exit( cmd_t *cmd)
 {
     int status = 1; 
 
-    printf("====built-ins.c->__exit====\n");
     if (cmd->args[0])
     {
         exit (status);
@@ -20,22 +19,20 @@ int _env(__attribute__((unused)) cmd_t *cmd)
     int count;
     char *paths = NULL;
 
-    printf("====built-ins.c->_env====\n");
     for (count = 0; (paths = environ[count]) != NULL; count++)
         printf("%s\n", paths);
     return (1);
 }
 int _setenv(cmd_t *cmd)
 {   
-    printf("=====built-ins.c->_setenv====\n");
     if (!cmd->args[1] || cmd->args[1] == NULL)
     {
-        err_msg("%s: %s: Usage <variable>\n", NAME, cmd->cmd);
+        err_msg("%s: %s: Usage <variable>\n", cmd->p_name, cmd->cmd);
         return (0);
     }
     if (!cmd->args[2] || cmd->args[2] == NULL)
     {
-        err_msg("%s: %s: Usage <variable VALUE>\n", NAME, cmd->cmd);
+        err_msg("%s: %s: Usage <variable VALUE>\n", cmd->p_name, cmd->cmd);
         return (0);
     }
     if (setenv(cmd->args[1], cmd->args[2], 1) == -1)
@@ -47,10 +44,9 @@ int _setenv(cmd_t *cmd)
 }
 int _unsetenv(cmd_t *cmd)
 {   
-    printf("=====built-ins.c->_setenv====\n");
     if (!cmd->args[1] || cmd->args[1] == NULL)
     {
-        err_msg("%s: %s: Usage <variable>\n", NAME, cmd->cmd);
+        err_msg("%s: %s: Usage <variable>\n", cmd->p_name, cmd->cmd);
         return (0);
     }
     if (unsetenv(cmd->args[1]) == -1)

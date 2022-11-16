@@ -7,10 +7,10 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <string.h>
-extern char *NAME;/*program name*/
 extern char **environ;/*environment variables list*/
 typedef struct command{
     int num_args;
+    char *p_name;
     char *cmd;
     char **args;
 }cmd_t;
@@ -29,7 +29,7 @@ char *read_line(void);
 int _putchar(char *);
 ssize_t _getline(char **lineptr, size_t *n, FILE *stream);
 void free_command(cmd_t *);
-cmd_t *parse_line(char *src);
+cmd_t *parse_line(char *src, char *);
 void *realloc_memory(void *mem, ssize_t size);
 /*helper functions*/
 void strip_line(char *str, ssize_t);

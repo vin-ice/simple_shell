@@ -74,7 +74,7 @@ char *read_line(void)
  * 
  * Return: void
  */
-cmd_t *parse_line(char *src)
+cmd_t *parse_line(char *src, char *process)
 {
     int len = BUFF_SIZE;/*64*/
     int count = 0;
@@ -85,6 +85,7 @@ cmd_t *parse_line(char *src)
     tokens = malloc(sizeof (char *) * len);
     if (tokens == NULL)
         err_exit("Memory not allocated");
+    command->p_name = process;
     token = _strtok(src, TOKEN_DELIM);
     command->cmd = token;
     while (token != NULL)

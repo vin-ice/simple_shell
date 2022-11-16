@@ -21,14 +21,12 @@ int execute(cmd_t *cmd)
         {NULL, NULL}
     };
     
-    printf("\n==== shell-core.c->execute====\n");
     /*1. aliases*/
     for (count = 0; aliases[count].alias_name != NULL; count++)
     {
         if (_strcmp(cmd->cmd, aliases[count].alias_name) == 0)
             cmd->cmd = aliases[count].real_name;/**change command to full command*/
     }
-    printf("%s\n", cmd->cmd);
     /*2. builtins*/
     for (count = 0; sh_builtins[count].name != NULL; count++)
     {
@@ -40,11 +38,10 @@ int execute(cmd_t *cmd)
                 return (1);
         }
     }
-    printf("%s\n", cmd->cmd);
     /*3. env */
     if (!isexec(cmd))
     {
-        err_msg("%s: File not found\n", NAME);
+        err_msg("%s: File not found\n", cmd->p_name);
         return (0);
     }
     _execute(cmd);
@@ -59,8 +56,6 @@ int isexec(cmd_t *cmd)
 {
     char *paths = NULL, *path = NULL, *token;
     struct stat st;
-
-    printf("\n==== shell-core.c->isexec====\n");
 
     if (_strchr(cmd->cmd, '/') == NULL)/*cmd*/
     {   
