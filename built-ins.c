@@ -53,7 +53,7 @@ int _unsetenv(cmd_t *cmd)
         err_msg("%s: %s: Usage <variable>\n", NAME, cmd->cmd);
         return (0);
     }
-    if (unsetenv(cmd->args[1], cmd->args[2], 1) == -1)
+    if (unsetenv(cmd->args[1]) == -1)
     {
         perror("unsetenv");
         return (0);
