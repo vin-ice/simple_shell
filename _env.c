@@ -10,7 +10,6 @@ char *_getenv(char *var_name)
     char *var_vals = NULL;
     int n, count, len;
 
-    printf("\n=====_env.c->_getenv=====\n");
     n = strlen(var_name);
     for (count = 0; environ[count] != NULL; count++)
     {
