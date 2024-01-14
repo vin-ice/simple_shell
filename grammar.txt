@@ -3,9 +3,7 @@
 program     = (comment | cmd_line)*
 comment     = '#' word+
 word        = [a-z0-9_]+
-cmd_line    = (compound_cmd | simple_cmd)*
-compound_cmd= simple_cmd (blank | operator simple_cmd)*
-simple_cmd  = cmd (blank | arg)* newline
+cmd_line    = cmd arg* ('|' cmd (arg)*)* (operator filename)* &
 cmd         = (path | word)
 path        = (abs_path | rel_path | word)
 abs_path    = '/' (word ('/')?)*
@@ -14,5 +12,5 @@ dot_segment = '.' | '..' | word
 home_path   = '~'
 arg         = ('-' | '--')? word+
 blank       = ' ' | '\t'
-operator    = '&' | '&&' | '|' | '||' | ';' | ';;'
+operator    = '&' | '&&' | '||' | ';' | ';;' | '>' | '>>' | '<'  
 newline		= '\n'

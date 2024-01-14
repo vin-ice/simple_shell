@@ -133,6 +133,7 @@ static int run_cmds(shell_t *shell, cmds_t *cmds)
 		if (op->value == OP_SIMPLE)
 		{
 			line = cmds->lines[i].items;
+			printf("%s\n", line[0]);
 			status = run_cmd_line(shell, line);
 		} else if (op->value == OP_BIN_AND)
 		{
@@ -157,24 +158,6 @@ static int run_cmds(shell_t *shell, cmds_t *cmds)
 }
 
 /**
- * run_cmd - primes the execution of cmds
- * @shell: shell's context structure
- * @cmds: cmd lines bucket
- *
- * Return: return execution status
- */
-static int run_cmd(shell_t *shell, cmds_t *cmds)
-{
-	int status = EXEC_OK;
-
-	if (cmds->count > 0)
-	{
-		status = run_cmds(shell, cmds);
-	}
-	return (status);
-}
-
-/**
  * execute - executes commands lines
  * @shell: shell's context structure
  * @source: input string
@@ -183,9 +166,10 @@ static int run_cmd(shell_t *shell, cmds_t *cmds)
 int execute(shell_t *shell, char *source)
 {
 	cmds_t cmds;
-	int status = 0;
+	int status = EXEC_OK;
 
 	init_cmds(&cmds);
+	shell->cmds = (void *) &cmds;
 
 	if (!parse(&cmds, source))
 	{
@@ -193,7 +177,7 @@ int execute(shell_t *shell, char *source)
 		return (EXEC_PARSE_ERROR);
 	}
 
-	status = run_cmd(shell, &cmds);
+	status = run_cmds(shell, &cmds);
 	free_cmds(&cmds);
 
 	return (status);

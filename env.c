@@ -37,7 +37,26 @@ bool init_env(envs_t *envs, char **envp)
 }
 
 /**
- * get_env_var_addr - finds a shell variable and returns its address in the envs
+ * free_env - frees environment variables
+ * @envs: env bucket
+ */
+void free_env(envs_t *envs)
+{
+	size_t i = 0;
+
+	if (envs)
+	{
+		for (i = 0; i < envs->count; i++)
+		{
+			free(envs->items[i]);
+		}
+		FREE_ARRAY(char *, envs->items, envs->capacity);
+	}
+}
+
+/**
+ * get_env_var_addr - finds a shell variable and
+ *	returns its address in the envs
  * @envs: shell's environment variable's bucket
  * @name: name of shell variable
  *

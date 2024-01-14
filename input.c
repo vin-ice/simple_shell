@@ -80,6 +80,7 @@ ssize_t _getline(char **lineptr, size_t *n, FILE *stream)
 		n_read += len;
 		buff_cursor = buff_count;
 	}
+
 	line[n_read] = '\0';
 	*lineptr = line;
 	*n = n_read;

@@ -67,11 +67,16 @@ void write_line(cmd_t *line, token_t *token)
 {
 	size_t old_capacity = line->capacity;
 
+
 	if (line->capacity < line->count + 2)
 	{
 		line->capacity = GROW_CAPACITY(old_capacity);
 		line->items = GROW_ARRAY(char *, line->items, old_capacity,
 								line->capacity);
+		if (line->items == NULL)
+		{
+			return;
+		}
 	}
 
 	line->items[line->count] = _strndup(token->start, token->length);

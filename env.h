@@ -17,6 +17,7 @@ typedef struct envs_s
 } envs_t;
 
 bool init_env(envs_t *env, char **envp);
+void free_env(envs_t *env);
 char **get_env_var_addr(envs_t *env, char *name);
 char *get_env(envs_t *env, char *name);
 bool add_env_var(envs_t *envs, char *var);

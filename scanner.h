@@ -1,7 +1,6 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include "common.h"
 #include "_string.h"
 #include "utils.h"
 
@@ -52,7 +51,7 @@ typedef struct token_s
 	int type;
 	const char *start;
 	size_t length;
-	int line;
+	size_t line;
 } token_t;
 
 void init_scanner(scanner_t *scanner, char *source);

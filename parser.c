@@ -16,7 +16,7 @@ static void error_at(parser_t *parser, token_t *token)
 	}
 
 	parser->panic_mode = true;
-	fprintf(stderr, "[line %d] Error ", token->line);
+	fprintf(stderr, "[line %lu] Error ", token->line);
 	fprintf(stderr, "at '%.*s'", (int) token->length, token->start);
 	fprintf(stderr, ": %s\n", token->start);
 	parser->errored = true;
@@ -41,7 +41,6 @@ static void advance(parser_t *parser, scanner_t *scanner)
 		error_at(parser, &parser->current);
 	}
 }
-static void parse_line(parser_t *parser, scanner_t *scanner, cmds_t *cmds);
 
 /**
  * add_operation - adds an operation to cmds
@@ -65,56 +64,21 @@ void add_operation(cmds_t *cmds, int op_value)
 }
 
 /**
- * parse_line - parses line
- * @parser: parser's context structure
- * @scanner: scanner's context structure
- * @cmds: command lines' bucket
+ * make_line - makes an empty line
+ * @cmds: cmd lines bucket
+ * Return: return cmd_t line
  */
-static void parse_line(parser_t *parser, scanner_t *scanner, cmds_t *cmds)
+cmd_t *make_line(cmds_t *cmds)
 {
-	cmd_t line;
+	cmd_t *line = 0;
 
-	line.capacity = 0;
-	line.count = 0;
-	line.items = NULL;
+	line = malloc(sizeof(cmd_t));
+	line->count = 0;
+	line->capacity = 0;
+	line->items = NULL;
 
-	while (1)
-	{
-		if (parser->current.type == TOKEN_IDENTIFIER)
-		{
-			printf("line: %*.s",
-					(int) parser->current.length,
-					parser->current.start);
-			write_line(&line, &parser->current);
-			printf("%s\n", parser->current.start);
-			advance(parser, scanner);
-		} else if (parser->current.type == TOKEN_ERROR)
-		{
-			free_cmds(cmds);
-			free(line.items);
-			error_at(parser, &parser->current);
-			return;
-		} else
-		{
-			break;
-		}
-	}
-	write_cmd_line(cmds, &line);
-	add_operation(cmds, OP_SIMPLE);
-}
-
-/**
- * parse_program - parses the program
- * @parser: parser's context structure
- * @scanner: scanner's context structure
- * @cmds: command lines bucket
- */
-static void parse_program(parser_t *parser, scanner_t *scanner, cmds_t *cmds)
-{
-	while (parser->current.type != TOKEN_EOF)
-	{
-		parse_line(parser, scanner, cmds);
-	}
+	write_cmd_line(cmds, line);
+	return (&cmds->lines[cmds->count - 1]);
 }
 
 /**
@@ -127,14 +91,33 @@ bool parse(cmds_t *cmds, char *source)
 {
 	parser_t parser;
 	scanner_t scanner;
+	cmd_t *line = NULL;
 
 	init_scanner(&scanner, source);
 
 	parser.errored = false;
 	parser.panic_mode = false;
 
-	advance(&parser, &scanner);
-	parse_program(&parser, &scanner, cmds);
+	for (;;)
+	{
+		advance(&parser, &scanner);
+		if (parser.current.type == TOKEN_IDENTIFIER)
+		{
+			if (cmds->count < parser.current.line || cmds->count == 0)
+			{
+				line = make_line(cmds);
+			}
+			write_line(line, &parser.current);
+		} else if (parser.current.type == TOKEN_ERROR)
+		{
+			error_at(&parser, &parser.current);
+		} else if (parser.current.type == TOKEN_EOF)
+		{
+			add_operation(cmds, OP_SIMPLE);
+			break;
+		}
+
+	}
 	return (!parser.errored);
 }
 
