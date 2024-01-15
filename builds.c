@@ -18,20 +18,21 @@
  */
 int __exit(shell_t *shell, char **argv)
 {
-	int status;
+	int status = 0;
 
-	free_shell(shell);
-	if (argv)
+	if (argv && argv[1])
 	{
 		status = atoi(argv[1]);
+
 		if (status < 0)
 		{
 			fprintf(stderr, "exit expects an integer status\n");
 			return (1);
 		}
-		exit(status);
 	}
-	exit(EXIT_SUCCESS);
+
+	free_shell(shell);
+	exit(status);
 }
 
 /**

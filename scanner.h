@@ -56,6 +56,7 @@ typedef struct token_s
 
 void init_scanner(scanner_t *scanner, char *source);
 token_t scan(scanner_t *scanner);
+char advance_scanner(scanner_t *scanner);
 char peek(scanner_t *scanner);
 bool match(scanner_t *scanner, char expected);
 bool is_at_end(scanner_t *scanner);

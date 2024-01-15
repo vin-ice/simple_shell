@@ -13,6 +13,17 @@ void init_scanner(scanner_t *scanner, char *source)
 }
 
 /**
+ * advance - advances the current pointer to next character
+ * @scanner: scanner context structure
+ * Return: returns previous character
+ */
+char advance_scanner(scanner_t *scanner)
+{
+	scanner->current++;
+	return (scanner->current[-1]);
+}
+
+/**
  * peek - returns character under the current pointer
  * @scanner: scanner's context structure
  * Return: return the character under the current pointer

@@ -1,17 +1,6 @@
 #include "scanner.h"
 
 /**
- * advance - advances the current pointer to next character
- * @scanner: scanner context structure
- * Return: returns previous character
- */
-static char advance(scanner_t *scanner)
-{
-	scanner->current++;
-	return (scanner->current[-1]);
-}
-
-/**
  * skip_whitespace - checks if next character is whitespace and advances
  * @scanner: scanner's context structure
  */
@@ -27,17 +16,17 @@ void skip_whitespace(scanner_t *scanner)
 			case ' ':
 			case '\r':
 			case '\t':
-				advance(scanner);
+				advance_scanner(scanner);
 				break;
 			case '\n':
 				scanner->line++;
-				advance(scanner);
+				advance_scanner(scanner);
 				break;
 			case '#':
 			{
 				while (peek(scanner) != '\n' && !is_at_end(scanner))
 				{
-					advance(scanner);
+					advance_scanner(scanner);
 				}
 				break;
 			}
@@ -94,7 +83,7 @@ static token_t make_identifier_token(scanner_t *scanner, int type)
 {
 	while (_is_word(peek(scanner)) || _is_digit(peek(scanner)))
 	{
-		advance(scanner);
+		advance_scanner(scanner);
 	}
 	return (make_token(scanner, type));
 }
@@ -116,7 +105,7 @@ token_t scan(scanner_t *scanner)
 		return (make_token(scanner, TOKEN_EOF));
 	}
 
-	c = advance(scanner);
+	c = advance_scanner(scanner);
 	if (_is_word(c))
 	{
 		return (make_identifier_token(scanner, TOKEN_IDENTIFIER));

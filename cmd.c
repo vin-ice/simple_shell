@@ -34,6 +34,7 @@ static void free_cmd(cmd_t *cmd)
 		}
 		FREE_ARRAY(char **, cmd->items, cmd->capacity);
 	}
+	free(cmd);
 }
 
 /**
@@ -50,7 +51,7 @@ void free_cmds(cmds_t *cmds)
 		{
 			for (i = 0; i < cmds->count; i++)
 			{
-				free_cmd(&cmds->lines[i]);
+				free_cmd(cmds->lines[i]);
 			}
 			FREE_ARRAY(cmd_t, cmds->lines, cmds->capacity);
 		}
@@ -97,11 +98,11 @@ void write_cmd_line(cmds_t *cmds, cmd_t *line)
 	{
 		old_capacity = cmds->capacity;
 		cmds->capacity = GROW_CAPACITY(old_capacity);
-		cmds->lines = GROW_ARRAY(cmd_t, cmds->lines,
+		cmds->lines = GROW_ARRAY(cmd_t *, cmds->lines,
 								old_capacity, cmds->capacity);
 	}
 
-	cmds->lines[cmds->count] = *line;
+	cmds->lines[cmds->count] = line;
 	cmds->count++;
 }
 

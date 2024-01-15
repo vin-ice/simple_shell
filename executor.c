@@ -87,7 +87,7 @@ static int run_cmd_line(shell_t *shell, char **line)
 		{
 			execve(program, line, shell->env.items);
 			fprintf(stderr, "%s: %s\n", line[0], strerror(errno));
-			_exit(EXIT_FAILURE);
+			return (EXEC_RUNTIME_ERROR);
 		} else if (pid > 0)
 		{
 			waitpid(pid, &status, 0);
@@ -111,7 +111,7 @@ static int run_cmd_line(shell_t *shell, char **line)
 			return (EXEC_RUNTIME_ERROR);
 		}
 	}
-	return (EXEC_OK);
+	return (EXEC_RUNTIME_ERROR);
 }
 
 /**
@@ -132,13 +132,12 @@ static int run_cmds(shell_t *shell, cmds_t *cmds)
 	{
 		if (op->value == OP_SIMPLE)
 		{
-			line = cmds->lines[i].items;
-			printf("%s\n", line[0]);
+			line = cmds->lines[i]->items;
 			status = run_cmd_line(shell, line);
 		} else if (op->value == OP_BIN_AND)
 		{
-			line1 = cmds->lines[i].items;
-			line2 = cmds->lines[i + 1].items;
+			line1 = cmds->lines[i]->items;
+			line2 = cmds->lines[i + 1]->items;
 
 			status = run_cmd_line(shell, line1);
 			if (status == EXEC_OK)
@@ -167,13 +166,17 @@ int execute(shell_t *shell, char *source)
 {
 	cmds_t cmds;
 	int status = EXEC_OK;
+	bool parsed = false;
 
 	init_cmds(&cmds);
 	shell->cmds = (void *) &cmds;
 
-	if (!parse(&cmds, source))
+	parsed = parse(&cmds, source);
+	free(source);
+	if (!parsed)
 	{
 		free_cmds(&cmds);
+		shell->cmds = NULL;
 		return (EXEC_PARSE_ERROR);
 	}
 

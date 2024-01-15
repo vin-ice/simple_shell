@@ -53,7 +53,7 @@ typedef struct cmds_s
 	size_t count;
 	size_t capacity;
 	op_t *ops;
-	cmd_t *lines;
+	cmd_t **lines;
 } cmds_t;
 
 void init_cmds(cmds_t *cmds);

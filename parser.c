@@ -72,13 +72,13 @@ cmd_t *make_line(cmds_t *cmds)
 {
 	cmd_t *line = 0;
 
-	line = malloc(sizeof(cmd_t));
+	line = realloc(line, sizeof(cmd_t));
 	line->count = 0;
 	line->capacity = 0;
 	line->items = NULL;
 
 	write_cmd_line(cmds, line);
-	return (&cmds->lines[cmds->count - 1]);
+	return (cmds->lines[cmds->count - 1]);
 }
 
 /**

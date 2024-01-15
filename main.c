@@ -43,18 +43,15 @@ static bool init_shell(shell_t *shell, char *name, char **envp)
  */
 void free_shell(shell_t *shell)
 {
-	size_t i = 0;
-
-	if (shell != NULL && shell->env.items != NULL)
+	if (shell != NULL)
 	{
-		for (i = 0; i < shell->env.count; i++)
-		{
-			free(shell->env.items[i]);
-		}
-		free(shell->env.items);
-	}
+		free_env(&shell->env);
 
-	exit(EXIT_SUCCESS);
+		if (shell->cmds)
+		{
+			free_cmds((cmds_t *) shell->cmds);
+		}
+	}
 }
 
 /**
@@ -87,7 +84,6 @@ static void repl(shell_t *shell)
 					shell->program, strerror(errno));
 			continue;
 		}
-		free(input);
 		input = NULL, n = 0;
 	}
 
@@ -122,7 +118,7 @@ int main(int argc, char **argv, char **envp)
 		{
 			execute(&shell, input);
 		}
-		free(input);
+		free_shell(&shell);
 	} else
 	{
 		if (isatty(STDIN_FILENO) == 1)
@@ -135,11 +131,10 @@ int main(int argc, char **argv, char **envp)
 			{
 				execute(&shell, input);
 			}
-			free(input);
+			free_shell(&shell);
 		}
 	}
 
-	free_shell(&shell);
 	return (0);
 }
 
