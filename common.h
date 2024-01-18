@@ -11,7 +11,6 @@
 #include "cmd.h"
 
 #define PATH_MAX 4096
-extern char **environ;
 
 /**
  * struct shell_s - shell context structure

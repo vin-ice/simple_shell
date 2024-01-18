@@ -34,6 +34,7 @@ bool init_env(envs_t **envs, char **envp)
 			return (false);
 		}
 	}
+	env.items[i] = NULL;
 	*envs = &env;
 	return (true);
 }
@@ -121,7 +122,7 @@ bool add_env_var(envs_t *envs, char *val)
 {
 	size_t old_capacity = 0;
 
-	if (envs->capacity < envs->count + 1)
+	if (envs->capacity < envs->count + 2)
 	{
 		old_capacity = envs->capacity;
 		envs->capacity = GROW_CAPACITY(old_capacity);
