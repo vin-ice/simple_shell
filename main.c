@@ -94,7 +94,9 @@ int main(int argc, char **argv, char **envp)
 	char *input = NULL;
 	ssize_t n_read = 0;
 	size_t n = 0;
+	char **environ = envp;
 
+	(void) environ; 
 	if (!init_shell(&shell, argv[0], envp))
 	{
 		fprintf(stderr, "%s: init_shell: Failed to initialize shell\n",

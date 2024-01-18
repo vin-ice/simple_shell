@@ -109,6 +109,7 @@ void write_cmd_line(cmds_t *cmds, cmd_t *line)
 	}
 
 	cmds->lines[cmds->count] = line;
+	cmds->lines[cmds->count + 1] = NULL;
 	cmds->count++;
 }
 
