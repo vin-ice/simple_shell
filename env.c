@@ -13,26 +13,28 @@
  *
  * Return: true on completion else false
  */
-bool init_env(envs_t *envs, char **envp)
+bool init_env(envs_t **envs, char **envp)
 {
 	size_t i = 0;
+	static envs_t env;
 
 	if (!envp || !*envp)
 	{
 		return (false);
 	}
 
-	envs->items = NULL;
-	envs->count = 0;
-	envs->capacity = 0;
+	env.items = NULL;
+	env.count = 0;
+	env.capacity = 0;
 
 	for (i = 0; envp[i]; i++)
 	{
-		if (!add_env_var(envs, envp[i]))
+		if (!add_env_var(&env, envp[i]))
 		{
 			return (false);
 		}
 	}
+	*envs = &env;
 	return (true);
 }
 
@@ -44,7 +46,7 @@ void free_env(envs_t *envs)
 {
 	size_t i = 0;
 
-	if (envs)
+	if (envs && envs->items)
 	{
 		for (i = 0; i < envs->count; i++)
 		{
@@ -68,7 +70,7 @@ char **get_env_var_addr(envs_t *envs, char *name)
 	char *key = NULL, *cpy = NULL;
 	size_t n_key = 0;
 
-	if (envs->items == NULL || envs->count == 0)
+	if (envs == NULL || (envs->items == NULL || envs->count == 0))
 	{
 		return (NULL);
 	}
@@ -100,11 +102,10 @@ char *get_env(envs_t *envs, char *name)
 	char **entry = NULL;
 
 	entry = get_env_var_addr(envs, name);
-	if (entry != NULL)
+	if (entry != NULL && *entry != NULL)
 	{
 		return (_strchr(*entry, '=') + 1);
 	}
-	printf("get_env: %s\n", *entry);
 
 	return (NULL);
 }

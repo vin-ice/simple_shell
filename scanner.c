@@ -73,15 +73,16 @@ static token_t make_error_token(scanner_t *scanner, const char *message)
 }
 
 /**
- * make_identifier_token - makes a word/identifier token
+ * make_word_token - makes a word/identifier token
  * @scanner: scanner's context structure
  * @type: type of token
  *
  * Return: identifier token
  */
-static token_t make_identifier_token(scanner_t *scanner, int type)
+static token_t make_word_token(scanner_t *scanner, int type)
 {
-	while (_is_word(peek(scanner)) || _is_digit(peek(scanner)))
+	while (!is_at_end(scanner) && !_is_control_operator(peek(scanner)) &&
+			!_strchr(" \t\n", peek(scanner)))
 	{
 		advance_scanner(scanner);
 	}
@@ -106,9 +107,9 @@ token_t scan(scanner_t *scanner)
 	}
 
 	c = advance_scanner(scanner);
-	if (_is_word(c))
+	if (!_is_control_operator(c))
 	{
-		return (make_identifier_token(scanner, TOKEN_IDENTIFIER));
+		return (make_word_token(scanner, TOKEN_WORD));
 	}
 
 	switch (c)
@@ -122,7 +123,6 @@ token_t scan(scanner_t *scanner)
 		case ';':
 			return (make_token(scanner, TOKEN_SEMI_COLON));
 	}
-
-	return (make_error_token(scanner, "Unexpected character."));
+	return (make_error_token(scanner, "unexpected character."));
 }
 

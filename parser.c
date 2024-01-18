@@ -72,7 +72,12 @@ cmd_t *make_line(cmds_t *cmds)
 {
 	cmd_t *line = 0;
 
-	line = realloc(line, sizeof(cmd_t));
+	line = (cmd_t *) malloc(sizeof(cmd_t));
+	if (line == NULL)
+	{
+		perror("make_line: malloc");
+		return (NULL);
+	}
 	line->count = 0;
 	line->capacity = 0;
 	line->items = NULL;
@@ -101,7 +106,7 @@ bool parse(cmds_t *cmds, char *source)
 	for (;;)
 	{
 		advance(&parser, &scanner);
-		if (parser.current.type == TOKEN_IDENTIFIER)
+		if (parser.current.type == TOKEN_WORD)
 		{
 			if (cmds->count < parser.current.line || cmds->count == 0)
 			{
@@ -116,7 +121,6 @@ bool parse(cmds_t *cmds, char *source)
 			add_operation(cmds, OP_SIMPLE);
 			break;
 		}
-
 	}
 	return (!parser.errored);
 }

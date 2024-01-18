@@ -23,7 +23,7 @@ extern scanner_t scanner;
  * enum token_types - token types
  * @TOKEN_ERROR: error
  * @TOKEN_EOF: EOF '\0'
- * @TOKEN_IDENTIFIER: identifier
+ * @TOKEN_WORD: identifier
  * @TOKEN_BIN_AND: &&
  * @TOKEN_BIN_OR: ||
  * @TOKEN_UN_AND: &
@@ -33,7 +33,7 @@ extern scanner_t scanner;
 enum token_types
 {
 	TOKEN_ERROR, TOKEN_EOF,
-	TOKEN_IDENTIFIER,
+	TOKEN_WORD,
 	TOKEN_BIN_AND, TOKEN_UN_AND,
 	TOKEN_BIN_OR, TOKEN_UN_OR,
 	TOKEN_SEMI_COLON

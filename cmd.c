@@ -26,15 +26,19 @@ static void free_cmd(cmd_t *cmd)
 {
 	size_t i = 0;
 
-	if (cmd->items)
+	if (cmd)
 	{
-		for (i = 0; i < cmd->count; i++)
+		if (*cmd->items)
 		{
-			free(cmd->items[i]);
+			for (i = 0; i < cmd->count; i++)
+			{
+				free(cmd->items[i]);
+			}
 		}
 		FREE_ARRAY(char **, cmd->items, cmd->capacity);
+		free(cmd);
+		cmd = NULL;
 	}
-	free(cmd);
 }
 
 /**
@@ -56,7 +60,9 @@ void free_cmds(cmds_t *cmds)
 			FREE_ARRAY(cmd_t, cmds->lines, cmds->capacity);
 		}
 		LIST_FREE(op_t, cmds->ops);
+		free(cmds);
 	}
+	cmds = NULL;
 }
 
 /**

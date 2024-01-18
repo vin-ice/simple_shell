@@ -1,5 +1,6 @@
+#include <assert.h>
 #include <stdio.h>
-#include "_string.h"
+#include <string.h>
 
 #include "mem.h"
 
@@ -15,21 +16,28 @@ void *allocate(void *pointer, size_t old_size, size_t new_size)
 {
 	void *block = NULL;
 
-	(void) old_size;
-
 	if (new_size == 0)
 	{
 		free(pointer);
 		return (NULL);
 	}
 
-	block = realloc(pointer, new_size);
-	if (block == NULL)
+	if (!pointer)
 	{
-		perror("realloc");
-		return (NULL);
+		block = malloc(new_size);
+	} else if (new_size <= old_size)
+	{
+		block = pointer;
+	} else
+	{
+		assert((pointer) && (new_size > old_size));
+		block = malloc(new_size);
+		if (block)
+		{
+			memcpy(block, pointer, old_size);
+			free(pointer);
+		}
 	}
-
 	return (block);
 }
 

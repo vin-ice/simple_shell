@@ -23,18 +23,15 @@
 static bool init_shell(shell_t *shell, char *name, char **envp)
 {
 	shell->program = basename(name);
+	shell->cmds = NULL;
+	shell->envs = NULL;
 
 	if (!envp || !*envp)
 	{
 		return (false);
 	}
 
-	if (!init_env(&(shell->env), envp))
-	{
-		return (false);
-	}
-
-	return (true);
+	return (init_env(&shell->envs, envp));
 }
 
 /**
@@ -45,12 +42,8 @@ void free_shell(shell_t *shell)
 {
 	if (shell != NULL)
 	{
-		free_env(&shell->env);
-
-		if (shell->cmds)
-		{
-			free_cmds((cmds_t *) shell->cmds);
-		}
+		free_env(shell->envs);
+		free_cmds((cmds_t *) shell->cmds);
 	}
 }
 
@@ -73,16 +66,14 @@ static void repl(shell_t *shell)
 		n_read = _getline(&input, &n, stdin);
 		if (n_read > 0)
 		{
-			if (*input == EOF)
-			{
-				return;
-			}
 			execute(shell, input);
 		} else if (n_read < 0)
 		{
 			fprintf(stderr, "%s: %s\n",
 					shell->program, strerror(errno));
-			continue;
+		} else
+		{
+			fprintf(stdout, "\n");
 		}
 		input = NULL, n = 0;
 	}
@@ -118,7 +109,6 @@ int main(int argc, char **argv, char **envp)
 		{
 			execute(&shell, input);
 		}
-		free_shell(&shell);
 	} else
 	{
 		if (isatty(STDIN_FILENO) == 1)
@@ -126,15 +116,20 @@ int main(int argc, char **argv, char **envp)
 			repl(&shell);
 		} else
 		{
-			n_read = _getline(&input, &n, stdin);
-			if (n_read > 0)
+			while (true)
 			{
-				execute(&shell, input);
+				n_read = _getline(&input, &n, stdin);
+				if (n_read > 0)
+				{
+					execute(&shell, input);
+				} else
+				{
+					break;
+				}
+				input = NULL, n = 0;
 			}
-			free_shell(&shell);
 		}
 	}
-
 	return (0);
 }
 

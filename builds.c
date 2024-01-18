@@ -49,9 +49,9 @@ int _env(shell_t *shell, char **argv)
 	(void) argv;
 	if (shell != NULL)
 	{
-		for (i = 0; i < shell->env.count; i++)
+		for (i = 0; i < shell->envs->count; i++)
 		{
-			fprintf(stdout, "%s\n", shell->env.items[i]);
+			fprintf(stdout, "%s\n", shell->envs->items[i]);
 		}
 	}
 	return (0);
@@ -75,7 +75,7 @@ int _setenv(shell_t *shell, char **argv)
 		return (1);
 	}
 
-	entry = get_env_var_addr(&(shell->env), argv[0]);
+	entry = get_env_var_addr(shell->envs, argv[0]);
 	n_key = _strlen(argv[0]);
 	n_val = _strlen(argv[1]);
 
@@ -103,7 +103,7 @@ int _setenv(shell_t *shell, char **argv)
 		}
 	} else
 	{
-		add_env_var(&(shell->env), str);
+		add_env_var(shell->envs, str);
 	}
 	return (0);
 }
@@ -126,7 +126,7 @@ int _unsetenv(shell_t *shell, char **argv)
 		return (1);
 	}
 
-	entry = get_env_var_addr(&shell->env, argv[0]);
+	entry = get_env_var_addr(shell->envs, argv[0]);
 	if (entry != NULL)
 	{
 		n_key = _strlen(argv[0]);
@@ -164,7 +164,7 @@ int _cd(shell_t *shell, char **argv)
 
 	if (argv && !*argv)
 	{
-		home_dir = get_env(&shell->env, "HOME");
+		home_dir = get_env(shell->envs, "HOME");
 		if (!home_dir)
 		{
 			fprintf(stderr, "%s: cd: HOME not set.\n", shell->program);
@@ -191,7 +191,7 @@ int _cd(shell_t *shell, char **argv)
 	{
 		if (*argv[0] == '-')
 		{
-			old_pwd = get_env(&shell->env, "OLDPWD");
+			old_pwd = get_env(shell->envs, "OLDPWD");
 			if (!old_pwd)
 			{
 				fprintf(stderr, "%s: cd: OLDPWD not set\n",

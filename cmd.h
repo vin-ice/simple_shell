@@ -1,7 +1,6 @@
 #ifndef CMD_H
 #define CMD_H
 
-#include "common.h"
 #include "scanner.h"
 
 /**

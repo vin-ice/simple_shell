@@ -23,20 +23,36 @@
  */
 static const char *_get_x_path(shell_t *shell, const char *identifier)
 {
-	char *pathv = NULL, *token, *path = NULL;
+	char *pathv = NULL, *token = NULL, *path = NULL, *cwd = NULL;
 	struct stat sb;
 
 	if (_is_abs(identifier))
 	{
 		if (stat(identifier, &sb) == 0)
-		{
 			return (identifier);
-		}
-		printf("%s: %s: No such file or directory.\n", shell->program, identifier);
+		fprintf(stderr, "%s: %s: No such file or directory.\n", shell->program,
+				identifier);
 		return (NULL);
 	}
 
-	pathv = _strdup(get_env(&shell->env, "PATH"));
+	if (_strncmp(identifier, "./", 2) == 0)
+	{
+		cwd = get_env(shell->envs, "PWD");
+		if (cwd == NULL)
+			return (NULL);
+
+		cwd = _strdup(cwd);
+		path = join_path(cwd, identifier + 2);
+		free(cwd);
+
+		if (stat(path, &sb) == 0)
+			return (path);
+
+		fprintf(stderr, "%s: %s: file not found\n", shell->program, identifier);
+		return (NULL);
+	}
+
+	pathv = _strdup(get_env(shell->envs, "PATH"));
 	if (pathv == NULL)
 	{
 		fprintf(stderr, "%s: failed to find PATH variable\n", shell->program);
@@ -54,7 +70,7 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 		}
 	}
 	free(pathv);
-	printf("%s: command not found.\n", identifier);
+	printf("%s: %s: command not found.\n", shell->program, identifier);
 	return (NULL);
 }
 
@@ -85,7 +101,7 @@ static int run_cmd_line(shell_t *shell, char **line)
 		pid = fork();
 		if (pid == 0) /**child*/
 		{
-			execve(program, line, shell->env.items);
+			execve(program, line, shell->envs->items);
 			fprintf(stderr, "%s: %s\n", line[0], strerror(errno));
 			return (EXEC_RUNTIME_ERROR);
 		} else if (pid > 0)
@@ -95,8 +111,6 @@ static int run_cmd_line(shell_t *shell, char **line)
 			{
 				if (WEXITSTATUS(status) != 0)
 				{
-					fprintf(stderr, "%s: Exit status %d\n", line[0],
-							WEXITSTATUS(status));
 					return (EXEC_RUNTIME_ERROR);
 				}
 			} else
@@ -164,25 +178,32 @@ static int run_cmds(shell_t *shell, cmds_t *cmds)
  */
 int execute(shell_t *shell, char *source)
 {
-	cmds_t cmds;
 	int status = EXEC_OK;
 	bool parsed = false;
 
-	init_cmds(&cmds);
-	shell->cmds = (void *) &cmds;
+	shell->cmds = malloc(sizeof(cmds_t));
+	if (shell->cmds == NULL)
+	{
+		return (EXEC_PARSE_ERROR);
+	}
+	init_cmds(shell->cmds);
 
-	parsed = parse(&cmds, source);
+	parsed = parse(shell->cmds, source);
 	free(source);
 	if (!parsed)
 	{
-		free_cmds(&cmds);
-		shell->cmds = NULL;
+		free_cmds(shell->cmds);
 		return (EXEC_PARSE_ERROR);
 	}
 
-	status = run_cmds(shell, &cmds);
-	free_cmds(&cmds);
+	if (shell->cmds->count < 1)
+	{
+		free_cmds(shell->cmds);
+		return (EXEC_OK);
+	}
 
+	status = run_cmds(shell, shell->cmds);
+	free_cmds(shell->cmds);
 	return (status);
 }
 

@@ -16,7 +16,7 @@ typedef struct envs_s
 	size_t count;
 } envs_t;
 
-bool init_env(envs_t *env, char **envp);
+bool init_env(envs_t **env, char **envp);
 void free_env(envs_t *env);
 char **get_env_var_addr(envs_t *env, char *name);
 char *get_env(envs_t *env, char *name);
