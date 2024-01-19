@@ -16,22 +16,13 @@
  * init_shell - Initializes shell context
  * @shell: shell context structure
  * @name: program's name
- * @envp: environment variables
  *
  * Return: true if complete else false
  */
-static bool init_shell(shell_t *shell, char *name, char **envp)
+static void init_shell(shell_t *shell, char *name)
 {
 	shell->program = basename(name);
 	shell->cmds = NULL;
-	shell->envs = NULL;
-
-	if (!envp || !*envp)
-	{
-		return (false);
-	}
-
-	return (init_env(&shell->envs, envp));
 }
 
 /**
@@ -42,7 +33,6 @@ void free_shell(shell_t *shell)
 {
 	if (shell != NULL)
 	{
-		free_env(shell->envs);
 		free_cmds((cmds_t *) shell->cmds);
 	}
 }
@@ -94,13 +84,10 @@ int main(int argc, char **argv, char **envp)
 	char *input = NULL;
 	ssize_t n_read = 0;
 	size_t n = 0;
+	char **environ = envp;
 
-	if (!init_shell(&shell, argv[0], envp))
-	{
-		fprintf(stderr, "%s: init_shell: Failed to initialize shell\n",
-				argv[0]);
-		return (1);
-	}
+	(void) environ;
+	init_shell(&shell, argv[0]);
 
 	if (argc > 1)
 	{
@@ -130,6 +117,7 @@ int main(int argc, char **argv, char **envp)
 			}
 		}
 	}
+	free_shell(&shell);
 	return (0);
 }
 

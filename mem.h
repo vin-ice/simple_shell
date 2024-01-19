@@ -10,6 +10,9 @@
 	((type *)allocate(pointer, sizeof(type) * (old_count),\
 					sizeof(type) * (new_count)))
 
+#define ALLOCATE(type, count)	\
+	((type *) allocate(NULL, 0, sizeof(type) * (count)))
+
 #define FREE_ARRAY(type, pointer, old_count) \
 	allocate(pointer, sizeof(type) * (old_count), 0)
 

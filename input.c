@@ -16,6 +16,8 @@
  * @buff: Buffer holding input
  * @buff_cursor: position of cursor on buffer
  * @len: size to copy
+ *
+ * Return: returns new line
  */
 static char *copy_to_line(char *line, ssize_t *n_read, char *buff,
 							ssize_t buff_cursor, ssize_t len)

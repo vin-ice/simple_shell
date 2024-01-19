@@ -26,6 +26,7 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 	char *pathv = NULL, *token = NULL, *path = NULL, *cwd = NULL;
 	struct stat sb;
 
+	assert(environ != NULL);
 	if (_is_abs(identifier))
 	{
 		if (stat(identifier, &sb) == 0)
@@ -37,7 +38,7 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 
 	if (_strncmp(identifier, "./", 2) == 0)
 	{
-		cwd = get_env(shell->envs, "PWD");
+		cwd = _getenv("PWD");
 		if (cwd == NULL)
 			return (NULL);
 
@@ -52,7 +53,7 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 		return (NULL);
 	}
 
-	pathv = _strdup(get_env(shell->envs, "PATH"));
+	pathv = _strdup(_getenv("PATH"));
 	if (pathv == NULL)
 	{
 		fprintf(stderr, "%s: failed to find PATH variable\n", shell->program);
@@ -101,7 +102,7 @@ static int run_cmd_line(shell_t *shell, char **line)
 		pid = fork();
 		if (pid == 0) /**child*/
 		{
-			execve(program, line, shell->envs->items);
+			execve(program, line, environ);
 			fprintf(stderr, "%s: %s\n", line[0], strerror(errno));
 			return (EXEC_RUNTIME_ERROR);
 		} else if (pid > 0)

@@ -1,11 +1,11 @@
 #include <ctype.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "_string.h"
 #include <string.h>
 
-#define PATH_MAX 256
 
 /**
  * _is_alpha - checks if character is an alphabet

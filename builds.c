@@ -6,8 +6,10 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "env.h"
 #include "_string.h"
+#include "mem.h"
+#include "executor.h"
+#include "env.h"
 
 /**
  * __exit - custom exit method
@@ -49,16 +51,16 @@ int _env(shell_t *shell, char **argv)
 	(void) argv;
 	if (shell != NULL)
 	{
-		for (i = 0; i < shell->envs->count; i++)
+		for (i = 0; environ[i]  != NULL; i++)
 		{
-			fprintf(stdout, "%s\n", shell->envs->items[i]);
+			fprintf(stdout, "%s\n", environ[i]);
 		}
 	}
 	return (0);
 }
 
 /**
- * _setenv - Initializes new environment variable or modifies one
+ * _setenv - Initializes new environment variable or modifies an existing one
  * @shell: context structure
  * @argv: arguments
  *
@@ -66,46 +68,50 @@ int _env(shell_t *shell, char **argv)
  */
 int _setenv(shell_t *shell, char **argv)
 {
-	char **entry = NULL, *str = NULL, *val = NULL;
-	size_t n_key = 0, n_val = 0;
+	char **ent_addr = NULL, *str = NULL, *val = NULL, *cpy = NULL;
+	size_t n_key = 0, n_val = 0, i = 0;
 
+	(void) shell;
 	if (!argv || !argv[0] || !argv[1])
 	{
 		fprintf(stderr, "Usage: setenv VARIABLE VALUE\n");
 		return (1);
 	}
 
-	entry = get_env_var_addr(shell->envs, argv[0]);
 	n_key = _strlen(argv[0]);
 	n_val = _strlen(argv[1]);
 
-	str = malloc(n_key + n_val + 2);
-	if (str == NULL)
+	ent_addr = get_env_var_addr(argv[0]);
+	if (ent_addr != NULL && *ent_addr != NULL)
 	{
-		fprintf(stderr, "Failed to allocate env var.\n");
-		return (1);
-	}
-
-	_strncpy(str, argv[0], n_key);
-	_strncat(str, "=", 1);
-	_strncat(str, argv[1], n_val);
-
-	if (entry != NULL)
-	{
-		val = _strchr(*entry, '=');
-		if (_strcmp((++val), argv[1]) != 0)
+		cpy = _strdup(*ent_addr);
+		_strtok(cpy, "=");
+		val = _strtok(NULL, " \n\t");
+		if (_strcmp(val, argv[1]) != 0)
 		{
-			free(*entry);
-			*entry = str;
-		} else
-		{
-			free(str);
+			str = mk_string((n_key + n_val + 1), argv[0], "=", argv[1]);
+			if (str == NULL)
+			{
+				free(cpy);
+				return (EXEC_RUNTIME_ERROR);
+			}
+			free(*ent_addr);
+			*ent_addr = str;
 		}
+		free(cpy);
 	} else
 	{
-		add_env_var(shell->envs, str);
+		environ = GROW_ARRAY(char *, environ, i, i + 1);
+		if (environ == NULL)
+			exit(EXEC_RUNTIME_ERROR);
+
+		str = mk_string((n_key + n_val + 2), argv[0], "=", argv[1]);
+		if (str == NULL)
+			return (EXEC_RUNTIME_ERROR);
+		environ[i] = str;
+		environ[i + 1] = NULL;
 	}
-	return (0);
+	return (EXEC_OK);
 }
 
 /**
@@ -117,35 +123,49 @@ int _setenv(shell_t *shell, char **argv)
  */
 int _unsetenv(shell_t *shell, char **argv)
 {
-	char **entry = NULL, *val = NULL, *str = NULL;
-	size_t n_key = 0;
+	char *entry = NULL, *key = NULL, *val = NULL, *str = NULL, *cpy = NULL;
+	size_t n_key = 0, i = 0;
 
+	(void) shell;
 	if (!argv || !argv[0])
 	{
 		fprintf(stderr, "Usage: unsetenv VARIABLE\n");
 		return (1);
 	}
 
-	entry = get_env_var_addr(shell->envs, argv[0]);
-	if (entry != NULL)
+	n_key = _strlen(argv[0]);
+	assert(environ != NULL);
+	for (i = 0; environ[i] != NULL; i++)
 	{
-		n_key = _strlen(argv[0]);
-		val = _strchr(*entry, '=');
-		if (val && *(val + 1))
+		cpy = _strdup(environ[i]);
+		key = _strtok(cpy, "=");
+		if (key && _strcmp(key, argv[0]) == 0)
 		{
-			str = malloc(n_key + 1);
+			free(cpy);
+			entry = environ[i];
+			break;
+		}
+		free(cpy);
+	}
+
+	if (entry)
+	{
+		cpy = _strdup(entry);
+		key = _strtok(cpy, "=");
+		val = _strtok(NULL, " \t\r\n");
+		if (val)
+		{
+			str = mk_string((n_key + 1), argv[0], "=");
 			if (str == NULL)
 			{
-				perror("malloc");
-				return (1);
+				free(cpy);
+				perror("unsetenv: malloc");
+				return (EXEC_RUNTIME_ERROR);
 			}
-
-			_strncpy(str, argv[0], n_key);
-			_strncat(str, "=", 1);
-
-			free(*entry);
-			*entry = str;
+			free(environ[i]);
+			environ[i] = str;
 		}
+		free(cpy);
 	}
 	return (0);
 }
@@ -164,7 +184,7 @@ int _cd(shell_t *shell, char **argv)
 
 	if (argv && !*argv)
 	{
-		home_dir = get_env(shell->envs, "HOME");
+		home_dir = _getenv("HOME");
 		if (!home_dir)
 		{
 			fprintf(stderr, "%s: cd: HOME not set.\n", shell->program);
@@ -191,7 +211,7 @@ int _cd(shell_t *shell, char **argv)
 	{
 		if (*argv[0] == '-')
 		{
-			old_pwd = get_env(shell->envs, "OLDPWD");
+			old_pwd = _getenv("OLDPWD");
 			if (!old_pwd)
 			{
 				fprintf(stderr, "%s: cd: OLDPWD not set\n",
