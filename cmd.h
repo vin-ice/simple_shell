@@ -56,7 +56,7 @@ typedef struct cmds_s
 } cmds_t;
 
 void init_cmds(cmds_t *cmds);
-void free_cmds(cmds_t *cmds);
+void free_cmds(cmds_t **cmds);
 void write_line(cmd_t *line, token_t *token);
 void write_cmd_line(cmds_t *cmds, cmd_t *line);
 

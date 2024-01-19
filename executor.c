@@ -193,18 +193,18 @@ int execute(shell_t *shell, char *source)
 	free(source);
 	if (!parsed)
 	{
-		free_cmds(shell->cmds);
+		free_cmds(&shell->cmds);
 		return (EXEC_PARSE_ERROR);
 	}
 
 	if (shell->cmds->count < 1)
 	{
-		free_cmds(shell->cmds);
+		free_cmds(&shell->cmds);
 		return (EXEC_OK);
 	}
 
 	status = run_cmds(shell, shell->cmds);
-	free_cmds(shell->cmds);
+	free_cmds(&shell->cmds);
 	return (status);
 }
 

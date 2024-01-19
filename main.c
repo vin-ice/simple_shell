@@ -33,7 +33,7 @@ void free_shell(shell_t *shell)
 {
 	if (shell != NULL)
 	{
-		free_cmds((cmds_t *) shell->cmds);
+		free_cmds(&shell->cmds);
 	}
 }
 

@@ -37,17 +37,17 @@ static void free_cmd(cmd_t *cmd)
 		}
 		FREE_ARRAY(char **, cmd->items, cmd->capacity);
 		free(cmd);
-		cmd = NULL;
 	}
 }
 
 /**
  * free_cmds - frees cmds;
- * @cmds: cmd lines structure
+ * @cmds_ptr: pointer to cmds bucket
  */
-void free_cmds(cmds_t *cmds)
+void free_cmds(cmds_t **cmds_ptr)
 {
 	size_t i = 0;
+	cmds_t *cmds = *cmds_ptr;
 
 	if (cmds)
 	{
@@ -61,8 +61,8 @@ void free_cmds(cmds_t *cmds)
 		}
 		LIST_FREE(op_t, cmds->ops);
 		free(cmds);
+		*cmds_ptr = NULL;
 	}
-	cmds = NULL;
 }
 
 /**
