@@ -12,8 +12,8 @@
 enum exec_state
 {
 	EXEC_OK,
-	EXEC_RUNTIME_ERROR,
-	EXEC_PARSE_ERROR
+	EXEC_PARSE_ERROR,
+	EXEC_RUNTIME_ERROR = 127
 };
 
 int execute(shell_t *shell, char *source);

@@ -36,15 +36,11 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 		return (NULL);
 	}
 
-	if (_strncmp(identifier, "./", 2) == 0)
+	if (_strncmp(identifier, "./", 2) == 0 ||
+			_strncmp(identifier, "../", 3) == 0)
 	{
 		cwd = _getenv("PWD");
-		if (cwd == NULL)
-			return (NULL);
-
-		cwd = _strdup(cwd);
-		path = join_path(cwd, identifier + 2);
-		free(cwd);
+		path = join_path(cwd, identifier);
 
 		if (stat(path, &sb) == 0)
 			return (path);
@@ -56,7 +52,7 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 	pathv = _strdup(_getenv("PATH"));
 	if (pathv == NULL)
 	{
-		fprintf(stderr, "%s: failed to find PATH variable\n", shell->program);
+		free(pathv);
 		return (NULL);
 	}
 
@@ -71,7 +67,6 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
 		}
 	}
 	free(pathv);
-	printf("%s: %s: command not found.\n", shell->program, identifier);
 	return (NULL);
 }
 
@@ -79,10 +74,11 @@ static const char *_get_x_path(shell_t *shell, const char *identifier)
  * run_cmd_line - runs a command line
  * @shell: shell context structure
  * @line: command line
+ * @line_no: line no
  *
  * Return: states of execution
  */
-static int run_cmd_line(shell_t *shell, char **line)
+static int run_cmd_line(shell_t *shell, char **line, int line_no)
 {
 	pid_t pid;
 	const char *program = NULL;
@@ -126,6 +122,7 @@ static int run_cmd_line(shell_t *shell, char **line)
 			return (EXEC_RUNTIME_ERROR);
 		}
 	}
+	fprintf(stderr, "%s: %d: %s: not found\n", shell->program, line_no, line[0]);
 	return (EXEC_RUNTIME_ERROR);
 }
 
@@ -148,16 +145,16 @@ static int run_cmds(shell_t *shell, cmds_t *cmds)
 		if (op->value == OP_SIMPLE)
 		{
 			line = cmds->lines[i]->items;
-			status = run_cmd_line(shell, line);
+			status = run_cmd_line(shell, line, i + 1);
 		} else if (op->value == OP_BIN_AND)
 		{
 			line1 = cmds->lines[i]->items;
 			line2 = cmds->lines[i + 1]->items;
 
-			status = run_cmd_line(shell, line1);
+			status = run_cmd_line(shell, line1, i + 1);
 			if (status == EXEC_OK)
 			{
-				status = run_cmd_line(shell, line2);
+				status = run_cmd_line(shell, line2, i + 2);
 			}
 			i++;
 		}

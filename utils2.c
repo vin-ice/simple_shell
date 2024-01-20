@@ -1,8 +1,10 @@
+#include <libgen.h>
 #include <stdio.h>
 #include <stdarg.h>
 
 #include "utils.h"
 #include "mem.h"
+#include "_string.h"
 
 /**
  * _is_word - checks if character is word-like

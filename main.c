@@ -21,7 +21,7 @@
  */
 static void init_shell(shell_t *shell, char *name)
 {
-	shell->program = basename(name);
+	shell->program = name;
 	shell->cmds = NULL;
 }
 
@@ -85,6 +85,7 @@ int main(int argc, char **argv, char **envp)
 	ssize_t n_read = 0;
 	size_t n = 0;
 	char **environ = envp;
+	int status = 0;
 
 	(void) environ;
 	init_shell(&shell, argv[0]);
@@ -94,7 +95,7 @@ int main(int argc, char **argv, char **envp)
 		input = read_file(argv[1]);
 		if (input != NULL)
 		{
-			execute(&shell, input);
+			status = execute(&shell, input);
 		}
 	} else
 	{
@@ -108,7 +109,7 @@ int main(int argc, char **argv, char **envp)
 				n_read = _getline(&input, &n, stdin);
 				if (n_read > 0)
 				{
-					execute(&shell, input);
+					status = execute(&shell, input);
 				} else
 				{
 					break;
@@ -118,6 +119,6 @@ int main(int argc, char **argv, char **envp)
 		}
 	}
 	free_shell(&shell);
-	return (0);
+	return (status);
 }
 
